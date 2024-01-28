@@ -1,0 +1,82 @@
+/* UserManage.css */
+.signup-container {
+  width: 100%;
+  display: block;
+  justify-content: center;
+  padding-left: 10%;
+  padding-right: 10%;
+  align-items: center;background-color: #f4f4f4;
+  color: #333;
+}
+.edit-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-card h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.edit-card > div {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin: 20px;
+  width: 300px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.edit-card > div:hover {
+  transform: scale(1.05);
+}
+
+.edit-form, .edit-form-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edit-form label, .edit-form-card p {
+  margin: 8px 0;
+  font-weight: bold;
+  color: #555;
+}
+
+.edit-form input, .edit-form-card button {
+  width: calc(100% - 16px);
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.edit-form input:focus {
+  border-color: #6cb2eb;
+  box-shadow: 0 0 8px rgba(108, 178, 235, 0.7);
+}
+
+.edit-form button, .edit-form-card button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-form button:hover, .edit-form-card button:hover {
+  background-color: #45a049;
+}
+

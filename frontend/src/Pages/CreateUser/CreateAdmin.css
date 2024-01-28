@@ -1,0 +1,105 @@
+
+
+.opn{
+  max-width: 78%;
+  margin-left: 22%;
+}
+
+  .signup-boxp{
+    display: flex;
+    justify-content: center;
+    background-color: #f4f4f4;
+  }
+  .signup-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin:30px 0px;
+    width: 760px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-field{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+    display: grid;
+  }
+  
+  .inputss {
+    width: 280px; /* Adjust for padding and margin */
+    padding: 8px;
+    margin-right: 8px; /* Adjust margin for consistency */
+    margin-bottom: 15px; /* Add margin bottom for spacing between form groups */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  
+  .error-message {
+    color: #ff0000;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  .btn {
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .btn-success {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .btn-light {
+    background-color: rgb(99, 141, 255);
+    color: #000;
+  }
+  
+  @media (max-width: 800px) {
+    .inputss input,
+    .inputss select {
+      width: 280px; /* Adjust for padding and margin */
+      padding: 8px;
+      margin-right: 8px; /* Adjust margin for consistency */
+      margin-bottom: 15px; /* Add margin bottom for spacing between form groups */
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .signup-container{
+        height: 100%;
+    }
+    .signup-box{
+        margin: 15px 0px;
+        width: 500px;
+    }
+  }
+  @media (max-width: 426px) {
+    .signup-container{
+        height: 100%;
+    }
+    .signup-box{
+        margin: 25px 0px;
+        width: 280px;
+    }
+    .inputss{
+      width: 230px;
+    }
+  }
+
+
+

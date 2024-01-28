@@ -1,0 +1,87 @@
+/* Navbar.css */
+.profile-bar {
+  display: flex;
+  position: static;
+  align-items: center;
+  background-color: #f4f4f4;
+  justify-content: flex-end;
+  padding: 8px 50px;
+}
+
+.profile-bar button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-bar button i {
+  color: #f2f2f2; /* Light gray icon color */
+  font-size: 24px;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notification-window,
+.event-window,
+.profile-window {
+  width: 250px;
+  text-align: center;
+  position: absolute;
+  top: 55px;
+  right: 50px;
+  background-color: #fff; /* Light gray background color */
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+  display: none;
+}
+
+.notification-window::before{
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 97px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent #b5b5b5 transparent;
+}
+
+.event-window::before{
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 65px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent #b5b5b5 transparent;
+}
+
+.profile-window::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 15px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent #b5b5b5 transparent;
+}
+
+.notification-window,
+.event-window,
+.profile-window {
+  display: block;
+}
+
+.profile-bar button:hover i {
+  color: #999; /* Dark gray icon color on hover */
+}
+
+.profile-bar button:hover img {
+  filter: brightness(80%); /* Slightly dim the profile image on hover */
+}
