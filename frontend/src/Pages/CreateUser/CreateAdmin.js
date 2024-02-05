@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './CreateAdmin.css';
+import PermissionManager from '../../Components/PermissionManager/PermissionManager';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+const ConfirmationModal = ({ show, onConfirm, onCancel }) => {
+  return (
+    show && (
+      <div className="confirmation-modal">
+        <p>Are you sure you want to submit the form?</p>
+        <button onClick={onConfirm}>Confirm</button>
+        <button onClick={onCancel}>Cancel</button>
+      </div>
+    )
+  );
+};
 
 function CreateUser(props) {
   const [values, setValues] = useState({
@@ -14,168 +27,85 @@ function CreateUser(props) {
     address: '',
     postalCode: '',
     country: 'India',
-    createdBy:props.user?.username,
+    createdBy: props.user?.username,
     state: '',
     city: '',
     username: '',
     password: '',
     roleType: '',
-    rolePlace:'',
+    rolePlace: '',
     parliamentSeats: '',
     assemblySeats: '',
     states: [],
     cities: [],
-    roleTypes:[],
+    roleTypes: [],
   });
 
+  const [permissions, setPermissions] = useState([]);
   const [parliamentSeatOptions, setParliamentSeatOptions] = useState([]);
   const [assemblySeatOptions, setAssemblySeatOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
-
-  const userData = [
-    { label: "Dashboard", link: "/", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Create User", link: "/create-user", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Manage City", link: "/manage-city", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Manage State", link: "/manage-state", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Manage Assembly", link: "/manage-assembly", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Manage Parliament", link: "/manage-parliament", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Manage User", link: "/manage-user", auth: { create: true, read: true, update: true, delete: true } },
-    { label: "Update User", link: "/update-user", auth: { create: true, read: true, update: true, delete: true } },
-  ];
-
-  const generateCheckboxes = () => {
-    return userData.map((item, index) => (
-      <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-        <label style={{ marginRight: '10px' }}>{item.label}</label>
-        {["read", "create", "update", "delete"].map(permission => (
-          <div key={permission} style={{ marginRight: '10px' }}>
-            <input type="checkbox"  />
-            <span>{permission}</span>
-          </div>
-        ))}
-        <br />
-      </div>
-    ));
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const responseStates = await axios.get('http://localhost:8080/service/indian-states');
-        setValues((prev) => ({ ...prev, states: responseStates.data}));
+        setValues((prev) => ({ ...prev, states: responseStates.data }));
 
         const responseRoleTypes = await axios.get('http://localhost:8080/service/roles');
-        setValues((prev) => ({ ...prev, roleTypes: responseRoleTypes.data.results}));
+        setValues((prev) => ({ ...prev, roleTypes: responseRoleTypes.data.results }));
 
         if (values.state) {
-          const responseParliamentSeats = await axios.get(`http://localhost:8080/service/parliament-seats/${values.state}`);
+          const responseParliamentSeats = await axios.get(
+            `http://localhost:8080/service/parliament-seats/${values.state}`
+          );
           setParliamentSeatOptions(responseParliamentSeats.data.seats);
 
-          const responseCities = await axios.get(`http://localhost:8080/service/indian-cities/${values.state}`);
-        setValues((prev) => ({ ...prev, cities: responseCities.data.cities }));
+          const responseCities = await axios.get(
+            `http://localhost:8080/service/indian-cities/${values.state}`
+          );
+          setValues((prev) => ({ ...prev, cities: responseCities.data.cities }));
 
-        if (values.city) {
-          const responseAssemblySeats = await axios.get(`http://localhost:8080/service/assembly-seats/${values.city}`);
-          setAssemblySeatOptions(responseAssemblySeats.data.seats);
+          if (values.city) {
+            const responseAssemblySeats = await axios.get(
+              `http://localhost:8080/service/assembly-seats/${values.city}`
+            );
+            setAssemblySeatOptions(responseAssemblySeats.data.seats);
           }
         }
-
-        
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    
+
     fetchData();
   }, [values.state, values.city]);
-
-
 
   const handleInput = (event) => {
     setValues((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
-  
   const handleImageInput = (event) => {
     setValues((prev) => ({ ...prev, [event.target.name]: event.target.files[0] }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData();
-    setErrors(validateForm(values));
-    console.log(errors);
-    console.log(Object.keys(errors).length);
-    if (Object.keys(errors).length === 0) {
-      axios.post('http://localhost:8080/service/create-address', {
-        address: values.address,
-        postalCode: values.postalCode,
-        country: values.country,
-        state: parseInt(values.state),
-        city: parseInt(values.city)
-      })
-      .then((addressResponse) => {
-        const addressId = addressResponse.data;
-        formData.append('image', values.image);
-        // Use the returned addressId to create the user
-        const userData = {
-          firstname: values.firstname,
-          lastname: values.lastname,
-          phone: values.phone,
-          email: values.email,
-          image: values.image,
-          createdBy: values.createdBy,
-          addressId: addressId, // Use the returned address ID here
-        };
-  
-        axios.post('http://localhost:8080/api/user/create-user', userData)
-          .then((userResponse) =>
-                  {
-                    const userId=userResponse.data;
-                    const place= values.parliamentSeats!==''?values.parliamentSeats:values.assemblySeats!==''?values.assemblySeats:values.rolePlace;
-                    const userCredential ={
-                      username:values.username,
-                      password:values.password,
-                      userId:parseInt(userId),
-                      createdBy:values.createdBy,
-                    }
-
-                    const userRole={
-                      roleTypeId:parseInt(values.roleType),
-                      userId:parseInt(userId),
-                      roleTypePlace:place,
-                    }
-
-                    axios.post('http://localhost:8080/api/user/create-user-login-credential', userCredential)
-                    .then((results)=>console.log(results))
-                    .catch((err)=>console.log(err));
-
-                    axios.post('http://localhost:8080/api/user/create-user-set-roles', userRole)
-                    .then((results)=>
-                      {
-                        console.log(results)
-                      }
-                    )
-                    .catch((err)=>console.log(err));
-
-                    
-                    navigate('/');
-                  }
-          )
-          .catch((err) => console.log(err));
-      })
-      .catch((err) => console.log(err));
-    }
-  };
-  
-
-
-
   const validateForm = (data) => {
     let errors = {};
 
-    for (const field of ['firstname', 'lastname', 'phone', 'email', 'address', 'postalCode', 'state', 'username', 'password', 'roleType']) {
+    for (const field of [
+      'firstname',
+      'lastname',
+      'phone',
+      'email',
+      'address',
+      'postalCode',
+      'state',
+      'username',
+      'password',
+      'roleType',
+    ]) {
       if (!data[field]) {
         errors[field] = 'This field is required';
       }
@@ -196,29 +126,118 @@ function CreateUser(props) {
     }
 
     if (data.roleType === 'Assembly' && (!data.city || !data.assemblySeats)) {
-      errors.city='This field is required';
+      errors.city = 'This field is required';
       errors.assemblySeats = 'City and Assembly seats are required for Assembly seat type';
     }
 
     return errors;
   };
 
+  const handleConfirm = () => {
+    const formData = new FormData();
+    setErrors(validateForm(values));
+
+    if (Object.keys(errors).length === 0) {
+      axios
+        .post('http://localhost:8080/service/create-address', {
+          address: values.address,
+          postalCode: values.postalCode,
+          country: values.country,
+          state: parseInt(values.state),
+          city: parseInt(values.city),
+        })
+        .then((addressResponse) => {
+          const addressId = addressResponse.data;
+          formData.append('image', values.image);
+
+          const userData = {
+            firstname: values.firstname,
+            lastname: values.lastname,
+            phone: values.phone,
+            email: values.email,
+            image: values.image,
+            createdBy: values.createdBy,
+            addressId: addressId,
+          };
+
+          axios
+            .post('http://localhost:8080/api/user/create-user', userData)
+            .then((userResponse) => {
+              const userId = userResponse.data;
+              const place =
+                values.parliamentSeats !== ''
+                  ? values.parliamentSeats
+                  : values.assemblySeats !== ''
+                  ? values.assemblySeats
+                  : values.rolePlace;
+              const userCredential = {
+                username: values.username,
+                password: values.password,
+                userId: parseInt(userId),
+                createdBy: values.createdBy,
+              };
+
+              const userRole = {
+                roleTypeId: parseInt(values.roleType),
+                userId: parseInt(userId),
+                roleTypePlace: place,
+                userPerms:JSON.stringify(permissions),
+              };
+              console.log(permissions);
+              axios
+                .post('http://localhost:8080/api/user/create-user-login-credential', userCredential)
+                .then((results) => console.log(results))
+                .catch((err) => console.log(err));
+
+              axios
+                .post('http://localhost:8080/api/user/create-user-set-roles', userRole)
+                .then((results) => {
+                  console.log(results);
+                })
+                .catch((err) => console.log(err));
+
+              navigate('/');
+            })
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  const handleCancel = () => {
+    console.log('Form submission canceled.');
+    setShowConfirmation(false);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setShowConfirmation(true);
+  };
+
   return (
     <>
-    {props.user?.role[0]==="Super Admin"?<title>EMS: Create User Admin</title>:<title>EMS: Create User</title>}
-    <div className='signup-boxp' id='signup-container'>
-      <div className='signup-box'>
-        {props.user?.role[0]==="Super Admin"?<h2 style={{marginBottom:'20px', textAlign:'center'}}>Create User Admin</h2>:<h2 style={{marginBottom:'20px', textAlign:'center'}}>Create User</h2>}
-        <form onSubmit={handleSubmit}>
+      {props.user?.role[0].role_type_name === 'Super Admin' ? (
+        <title>EMS: Create User Admin</title>
+      ) : (
+        <title>EMS: Create User</title>
+      )}
+      <div className="signup-boxp" id="signup-container">
+        <div className="signup-box">
+          {props.user?.role[0].role_type_name === 'Super Admin' ? (
+            <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Create User Admin</h2>
+          ) : (
+            <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Create User</h2>
+          )}
+          <form onSubmit={handleSubmit}>
           <div className='form-field'>
             <div className='form-group'>
               <label htmlFor='firstname'>First Name</label>
-              <input type='text' placeholder='Enter First Name' onChange={handleInput} name='firstname' className='inputss' required/>
+              <input type='text' placeholder='Enter First Name'  pattern="[A-Za-z]+" onChange={handleInput} name='firstname' className='inputss' required/>
               {errors.firstname && <span className='error-message'>{errors.firstname}</span>}
             </div>
             <div className='form-group'>
               <label htmlFor='lastname'>Last Name</label>
-              <input type='text' placeholder='Enter Last Name' onChange={handleInput} name='lastname' className='inputss' required/>
+              <input type='text' placeholder='Enter Last Name'  pattern="[A-Za-z]+" onChange={handleInput} name='lastname' className='inputss' required/>
               {errors.lastname && <span className='error-message'>{errors.lastname}</span>}
             </div>
             <div className='form-group'>
@@ -288,7 +307,7 @@ function CreateUser(props) {
                   </select>
                   {errors.city && <span className='error-message'>{errors.city}</span>}
                 </div>
-                {props.user?.role[0]==="Super Admin"?
+                {props.user?.role[0].role_type_name==="Super Admin"?
                           <>
                             <div className='form-group'>
                             <label htmlFor='roleTypes'>User Type</label>
@@ -303,9 +322,9 @@ function CreateUser(props) {
                               </select>
                               {errors.roleType && <span className='error-message'>{errors.roleType}</span>}
                             </div>
-                            {values.roleType==='1' && (generateCheckboxes())}
-                            {values.roleType==='2' && (
-                              <>
+                            {values.roleType==='1' && <PermissionManager user={props.user} permissions={permissions} setPermissions={setPermissions} page='create'  roleType={values.roleType}/>}
+                            {values.roleType === '2' && (
+                            <>
                               <div className='form-group'>
                                 <label htmlFor='parliamentSeats'>Parliament Seats</label>
                                 <select
@@ -325,13 +344,12 @@ function CreateUser(props) {
                                   <span className='error-message'>{errors.parliamentSeats}</span>
                                 )}
                               </div>
-                              </>
-                            )}
+                            </>
+                          )}
 
-                            {values.roleType ==='3' && (
-                              <>
-
-                                <div className='form-group'>
+                          {values.roleType === '3' && (
+                            <>
+                              <div className='form-group'>
                                 <label htmlFor='assemblySeats'>Assembly Seats</label>
                                 <select
                                   name='assemblySeats'
@@ -350,11 +368,18 @@ function CreateUser(props) {
                                   <span className='error-message'>{errors.assemblySeats}</span>
                                 )}
                               </div>
-                              </>
-                            )}
+                            </>
+                          )}
+                          {values.roleType==='2' && (
+                            <PermissionManager permissions={permissions} page='create' setPermissions={setPermissions} user={props.user} roleType={values.roleType}/>
+                          )}
+                          {values.roleType==='3' && (
+                            <PermissionManager permissions={permissions} page='create' setPermissions={setPermissions} user={props.user} roleType={values.roleType}/>
+                          )}
+
                           </>  :
                           <>
-                            {props.user?.role[0]==='Parliament'||props.user?.role[0]==='Assembly'||props.user?.role[0]==='Subadmin'?
+                            {props.user?.role[0].role_type_name==='Parliament'||props.user?.role[0].role_type_name==='Assembly'||props.user?.role[0]==='Subadmin'?
                               <>
                                 <div className='form-group'>
                                 <label htmlFor='roleType'>User Type</label>
@@ -367,11 +392,13 @@ function CreateUser(props) {
                                   </select>
                                   {errors.roleType && <span className='error-message'>{errors.roleType}</span>}
                                 </div>
+                                {values.roleType&&
                                 <div className='form-group'>
                                 <label htmlFor='rolePlace'>Area ID or Name</label>
                                 <input type='text' placeholder='Enter Area ID or Name' onChange={handleInput} name='rolePlace' className='inputss' required/>
                                 {errors.lastname && <span className='error-message'>{errors.lastname}</span>}
-                              </div>
+                              </div>}
+                              {values.roleType && <PermissionManager page='create' permissions={permissions} setPermissions={setPermissions} user={props.user} roleType={values.roleType}/>}
                             </>  
                             :<></>
                             }
@@ -404,9 +431,17 @@ function CreateUser(props) {
 
           </div>
           <button type='submit' className='btn btn-success w-100'>{props.user?.role[0]?<strong>Create User Admin</strong>:<strong>Create User</strong>}</button>
-        </form>
+
+          </form>
+        </div>
       </div>
-    </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        show={showConfirmation}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </>
   );
 }

@@ -3,13 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const userRoutes = require('./router/userRoutes');
-const manageCity = require('./helper/managecity');
-const manageAssembly = require('./helper/manageAssembly');
-const manageParliament = require('./helper/manageParliament');
-const manageStates = require('./helper/manageStates');
+const manageCity = require('./router/masterRoutes/managecity');
+const manageAssembly = require('./router/masterRoutes/manageAssembly');
+const manageParliament = require('./router/masterRoutes/manageParliament');
+const manageStates = require('./router/masterRoutes/manageStates');
 const service= require('./helper/service');
-const userManage =require('./helper/userManage')
-const manageAddress =require('./helper/manageAddress')
+const manageAddress =require('./router/masterRoutes/manageAddress')
 const manageLogins =require('./helper/Login')
 
 const app = express();
@@ -35,7 +34,6 @@ app.use('/api/parliaments',manageParliament)
 app.use('/api/states',manageStates)
 app.use('/api/address',manageAddress)
 app.use('/api/user_logins',manageLogins)
-app.use('/api/user_profile',userManage)
 app.use('/service',service);
 
 

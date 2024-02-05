@@ -14,8 +14,7 @@ import StateManagement from './Pages/MasterTable/ManageState/StateManagement';
 import ManageCity from './Pages/MasterTable/ManageCity/ManageCity';
 import AssemblyManagement from './Pages/MasterTable/ManageAssembly/AssemblyMange';
 import ParliamentManagement from './Pages/MasterTable/ManageParliament/ParliamentManagement';
-import UserManage from './Pages/Home/ManageUser'
-import AddressList from './Pages/Home/ManageAddress'
+import UserManage from './Pages/MasterTable/ManageUser/ManageUser';
 import UpdateUser from './Pages/CreateUser/UpdateUser';
 
 function App() {
@@ -41,20 +40,6 @@ function App() {
     }
   };
 
-  const obj=[
-    { label: "Dashboard", link: "/",component:Home,auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Create User", link: "/create-user",component:CreateUser,auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Manage City", link: "/manage-city",component:ManageCity ,auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Manage State", link: "/manage-state" ,component:StateManagement,auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Manage Assembly", link: "/manage-assembly" ,component:AssemblyManagement, auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Manage Parliament", link: "/manage-parliament" ,component:ParliamentManagement, auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Manage User", link: "/manage-user" ,component:UserManage, auth:{create:true,read:true,update:true,delete:true}},
-    { label: "Update User", link: "/update-user" ,component:UpdateUser, auth:{create:true,read:true,update:true,delete:true}},
-  ]
-
-  const objStr =JSON.stringify(obj);
-  console.log(objStr);
-
   const componentsMap = {
     "/": Home,
     "/create-user": CreateUser,
@@ -62,7 +47,6 @@ function App() {
     "/manage-state": StateManagement,
     "/manage-assembly":AssemblyManagement,
     "/manage-parliament":ParliamentManagement,
-    "/manage-address":AddressList,
     "/manage-user": UserManage,
     "/update-user":UpdateUser
   };
@@ -98,7 +82,7 @@ function App() {
         console.log(user);
 
         return(
-          <div style={{display:'flex'}}>
+          <div style={{display:'flex',backgroundColor:'#f4f4f4'}}>
             {message && <Message text={message.text} color={message.color} onClose={closeMessage} />}
             <Sidebar user={user}/>
             <div style={{width:'100%'}}>
@@ -108,22 +92,29 @@ function App() {
                 user?.userAuth?.map((item, index) => {
                   const Component = componentsMap[item?.link]; // Get the component based on user's permission
                   if (Component) {
-                    if(item?.link==="/create-user"){
-                      if(item?.auth?.create){
+                    if(item?.auth?.read){
                       return(
+                        <>
                         <Route
                           key={index}
                           path={item.link}
                           element={<Component r={0} token={token} user={user} handleLogout={handleLogout} />}
                         />
-                      )}
-                    }else if(item?.auth?.read){
-                      return(
-                        <Route
-                          key={index}
-                          path={item.link}
-                          element={<Component r={0} token={token} user={user} handleLogout={handleLogout} />}
-                        />
+                        {item.link==='/manage-user' && item?.auth?.create ?
+                          <Route
+                          key={1}
+                          path={'/create-user'}
+                          element={<CreateUser r={0} token={token} user={user} handleLogout={handleLogout} />}
+                          />:<></>
+                        }
+                        {item.link==='/manage-user' && item?.auth?.update ?
+                          <Route
+                          key={9}
+                          path={'/update-user'}
+                          element={<UpdateUser r={0} token={token} user={user} handleLogout={handleLogout} />}
+                        />:<></>
+                        }
+                        </>
                       )
                     }
                   }else{

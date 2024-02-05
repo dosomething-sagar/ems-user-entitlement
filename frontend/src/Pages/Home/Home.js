@@ -3,7 +3,7 @@ import './Home.css';
 import React from 'react';
 import Message from '../../Components/Message/Message';
 function Home(props) {
-    const role=props?.user?.role[props?.r];
+    const role=props?.user?.role[props?.r]?.role_type_name;
     return (
       <>
       <title>{role} Dashboard</title>

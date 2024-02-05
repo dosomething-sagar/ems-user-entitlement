@@ -121,7 +121,7 @@ router.get('/profile/:id', (req, res) => {
   
     const userId = req.params.id;
   
-    const query = "SELECT role_type_id FROM user_role WHERE user_id=?";
+    const query = "SELECT * FROM user_role WHERE user_id=?";
   
     db.query(query, [userId], (err, results) => {
       if (err) {
@@ -177,15 +177,15 @@ router.get('/profile/:id', (req, res) => {
   
     const roleTypeId = req.params.id;
   
-    const query = "SELECT role_type_name FROM role_type WHERE role_type_id=?";
+    const query = "SELECT role_type_name,user_perms FROM role_type WHERE role_type_id=?";
   
     db.query(query, [roleTypeId], (err, results) => {
       if (err) {
         res.status(500).json({ error: err.message });
       } else {
         if (results.length > 0) {
-          const roleName = results[0].role_type_name;
-          res.json({ roleName });
+          const roleName = results[0];
+          res.json({ roleName});
         } else {
           res.status(404).json({ error: 'Role name not found' });
         }
@@ -272,37 +272,186 @@ router.get('/profile/:id', (req, res) => {
   });
   
 
+  
 
   router.post('/create-user-set-roles', async (req, res) => {
     const {
       roleTypeId,
       userId,
       roleTypePlace,
+      userPerms,
     } = req.body;
   
     const userRoleQuery = `
       INSERT INTO user_role (
         role_type_id,
         user_id,
-        role_place
-      ) VALUES (?, ?, ?)
+        role_place,
+        user_auth
+      ) VALUES (?, ?, ?, ?)  
     `;
   
     const userRoleParams = [
       roleTypeId,
       userId,
       roleTypePlace,
+      userPerms,
     ];
+  
+    console.log("SQL Query:", userRoleQuery);
+    console.log("SQL Params:", userRoleParams);
   
     db.query(userRoleQuery, userRoleParams, (err, data) => {
       if (err) {
         console.error('Error creating user:', err);
         return res.status(500).json({ error: 'Internal server error' });
       }
-      console.log(data);
+      console.log("Insert ID:", data.insertId);
       return res.json(data.insertId);
     });
   });
+
+  
+  router.put('/update-user-roles/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    const {
+      roleTypeId,
+      roleTypePlace,
+      userPerms,
+    } = req.body;
+  
+    // Check if roleTypeId and roleTypePlace are defined
+    if (typeof roleTypeId === 'undefined' || typeof roleTypePlace === 'undefined') {
+      return res.status(400).json({ error: 'roleTypeId and roleTypePlace are required' });
+    }
+  
+    const updateUserRoleQuery = `
+      UPDATE user_role
+      SET
+        role_type_id = ?,
+        role_place = ?,
+        user_auth = ?
+      WHERE user_id = ?
+    `;
+  
+    const updateUserRoleParams = [
+      roleTypeId,
+      roleTypePlace,
+      userPerms,
+      userId,
+    ];
+  
+    console.log("SQL Query:", updateUserRoleQuery);
+    console.log("SQL Params:", updateUserRoleParams);
+  
+    db.query(updateUserRoleQuery, updateUserRoleParams, (err, data) => {
+      if (err) {
+        console.error('Error updating user roles:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      console.log("Rows affected:", data.affectedRows);
+      return res.json({ message: 'User roles updated successfully' });
+    });
+  });
+  
+
+  // Create a user
+let userProfileData = {};
+
+
+// Fetch all users with pagination
+router.get('/', (req, res) => {
+  const { page, pageSize } = req.query;
+
+  if (!page || !pageSize) {
+    return res.status(400).json({ error: 'Missing required query parameters: page and pageSize' });
+  }
+
+  const startIndex = (page - 1) * pageSize;
+
+  db.query('SELECT * FROM user_profile LIMIT ?, ?', [startIndex, parseInt(pageSize, 10)], (error, results) => {
+    if (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    const newUsers = results.map((user, index) => ({
+      ...user,
+      id: (page - 1) * pageSize + index + 1,
+    }));
+
+    res.status(200).json(newUsers);
+  });
+});
+
+// Get a specific user by user_id
+router.get('/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  db.query('SELECT * FROM user_profile WHERE user_id = ?', userId, (error, results) => {
+    if (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).send('Error fetching user');
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).json(results[0]);
+  });
+});
+
+// Update a user by user_id
+router.put('/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const updatedUser = req.body;
+
+  // Assuming 'user_profile' is your table name
+  db.query('UPDATE user_profile SET ? WHERE user_id = ?', [updatedUser, userId], (error) => {
+    if (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ error: 'Error updating user' });
+      return;
+    }
+    res.status(200).json({ message: 'User updated successfully' });
+  });
+});
+
+// Delete a user by user_id
+router.delete('/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  db.query('DELETE FROM user_profile WHERE user_id = ?', userId, (error, results) => {
+    if (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).send('Error deleting user');
+      return;
+    }
+    if (results.affectedRows === 0) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send('User deleted successfully');
+  })
+});
+
+  router.put('/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const userData = req.body; // This should contain the updated user details
+  
+      // Perform database update based on userId and userData
+      // Example: await updateUserProfile(userId, userData);
+  
+      userProfileData[userId] = userData;
+  
+      res.status(200).json({ message: 'User details updated successfully' });
+    } catch (error) {
+      console.error('Error updating user details:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   
   
 

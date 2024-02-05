@@ -64,7 +64,7 @@ const ProfileBar = (props) => {
           <h6>Profile details</h6>
           <img style={{width:'80px', height:'80px'}} className='profile-image' src={profileImage} alt="Profile" />
           <h3 style={{color:'#333'}}>{props.user.firstname+" "+props.user.lastname}</h3>
-          <h5 style={{color:'#767676'}}>{props.user.role[0]} </h5>
+          <h5 style={{color:'#767676'}}>{props.user.role[0].role_type_name} </h5>
           <h6 style={{color:'#767676'}}>(@{props.user.username})</h6>
           <h6 style={{color:'#333',fontSize:'18px'}}>{props.user.email}</h6>
           <h5 style={{color:'#333'}}>Contact : {props.user.contact}</h5>

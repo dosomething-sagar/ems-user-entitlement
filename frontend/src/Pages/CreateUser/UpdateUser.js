@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './CreateAdmin.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import PermissionManager from '../../Components/PermissionManager/PermissionManager';
 
 function UpdateUser(props) {
   const [values, setValues] = useState({
@@ -27,6 +28,7 @@ function UpdateUser(props) {
     cities: [],
     roleTypes: [],
   });
+  const [permissions,setPermissions]=useState([]);
 
   var result = null,
   tmp = [];
@@ -35,7 +37,7 @@ for (var index = 0; index < items.length; index++) {
   tmp = items[index].split("=");
   if (tmp[0] === "userid") result = decodeURIComponent(tmp[1]);
 }
-
+  var role_id;
   const [parliamentSeatOptions, setParliamentSeatOptions] = useState([]);
   const [assemblySeatOptions, setAssemblySeatOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -44,7 +46,7 @@ for (var index = 0; index < items.length; index++) {
   useEffect(() => {
     if (result != null) {
       // Fetch user details on component mount
-      axios.get(`http://localhost:8080/api/user_profile/${result}`)
+      axios.get(`http://localhost:8080/api/user/${result}`)
         .then((response) => {
           setValues((prev) => ({ ...prev, firstname: response.data.firstname }));
           setValues((prev) => ({ ...prev, lastname: response.data.lastname }));
@@ -66,11 +68,13 @@ for (var index = 0; index < items.length; index++) {
               console.error('Error fetching address:', error);
             });
 
-          axios.get(`http://localhost:8080/api/user/user-role/${response.data.user_id}`)
+          axios.get(`http://localhost:8080/api/user/user-role/${result}`)
             .then((roleResponse) => {
               const userRoleData = roleResponse.data.userRoles[0];
-              setValues((prev) => ({ ...prev, roleType: userRoleData.role_type_id }));
+              setValues((prev) => ({ ...prev, roleType: ''+userRoleData.role_type_id }));
+              role_id=userRoleData.role_type_id;
               setValues((prev) => ({ ...prev, rolePlace: userRoleData.role_place }));
+              setPermissions(JSON.parse(userRoleData.user_auth));
             })
             .catch((error) => {
               console.error('Error fetching user role:', error);
@@ -136,7 +140,7 @@ for (var index = 0; index < items.length; index++) {
 
     if (Object.keys(errors).length === 0) {
       // Update user profile
-      axios.put(`http://localhost:8080/api/user_profile/${result}`, {
+      axios.put(`http://localhost:8080/api/user/${result}`, {
         firstname: values.firstname,
         lastname: values.lastname,
         contact: values.phone,
@@ -165,9 +169,10 @@ for (var index = 0; index < items.length; index++) {
                   console.log(response.data.message);
 
                   // Update user roles
-                  axios.put(`http://localhost:8080/api/address/user-role/${result}`, {
-                    roleTypeId: values.roleType,
-                    rolePlace: values.rolePlace,
+                  axios.put(`http://localhost:8080/api/user/update-user-roles/${result}`, {
+                    roleTypeId: parseInt(values.roleType),
+                    roleTypePlace: values.rolePlace,
+                    userPerms: JSON.stringify(permissions),
                   })
                     .then((response) => {
                       console.log(response.data.message);
@@ -219,12 +224,12 @@ for (var index = 0; index < items.length; index++) {
           <div className='form-field'>
             <div className='form-group'>
               <label htmlFor='firstname'>First Name</label>
-              <input type='text' value={values.firstname} placeholder='Enter First Name' onChange={handleInput} name='firstname' className='inputss' required/>
+              <input type='text' value={values.firstname}  pattern="[A-Za-z]+" placeholder='Enter First Name' onChange={handleInput} name='firstname' className='inputss' required/>
               {errors.firstname && <span className='error-message'>{errors.firstname}</span>}
             </div>
             <div className='form-group'>
               <label htmlFor='lastname'>Last Name</label>
-              <input type='text'value={values.lastname} placeholder='Enter Last Name' onChange={handleInput} name='lastname' className='inputss' required/>
+              <input type='text'value={values.lastname}  pattern="[A-Za-z]+" placeholder='Enter Last Name' onChange={handleInput} name='lastname' className='inputss' required/>
               {errors.lastname && <span className='error-message'>{errors.lastname}</span>}
             </div>
             <div className='form-group'>
@@ -297,7 +302,7 @@ for (var index = 0; index < items.length; index++) {
                   </select>
                   {errors.city && <span className='error-message'>{errors.city}</span>}
                 </div>
-                {props.user?.role[0]==="Super Admin"?
+                {props.user?.role[0].role_type_name==="Super Admin"?
                           <>
                             <div className='form-group'>
                             <label htmlFor='roleTypes'>User Type</label>
@@ -312,8 +317,9 @@ for (var index = 0; index < items.length; index++) {
                               </select>
                               {errors.roleType && <span className='error-message'>{errors.roleType}</span>}
                             </div>
-
-                            {values.roleType===2 && (
+                            {values.roleType==='1' && <PermissionManager role_id={role_id} user={props.user} permissions={permissions} setPermissions={setPermissions} page='update'  roleType={values.roleType}/>}
+                          
+                            {values.roleType==='2' && (
                               <>
                               <div className='form-group'>
                                 <label htmlFor='rolePlace'>Parliament Seats</label>
@@ -338,7 +344,7 @@ for (var index = 0; index < items.length; index++) {
                               </>
                             )}
 
-                            {values.roleType ===3 && (
+                            {values.roleType ==='3' && (
                               <>
 
                                 <div className='form-group'>
@@ -363,9 +369,15 @@ for (var index = 0; index < items.length; index++) {
                               </div>
                               </>
                             )}
+                         {values.roleType==='2' && (
+                            <PermissionManager role_id={role_id} permissions={permissions} page='update' setPermissions={setPermissions} user={props.user} roleType={values.roleType}/>
+                          )}
+                          {values.roleType==='3' && (
+                            <PermissionManager role_id={role_id} permissions={permissions} page='update' setPermissions={setPermissions} user={props.user} roleType={values.roleType}/>
+                          )}
                           </>  :
                           <>
-                            {props.user?.role[0]==='Parliament'||props.user?.role[0]==='Assembly'||props.user?.role[0]==='Subadmin'?
+                            {props.user?.role[0].role_type_name==='Parliament'||props.user?.role[0].role_type_name==='Assembly'||props.user?.role[0].role_type_name==='Subadmin'?
                               <>
                                 <div className='form-group'>
                                 <label htmlFor='roleType'>User Type</label>
@@ -424,4 +436,9 @@ for (var index = 0; index < items.length; index++) {
 }
 
 export default UpdateUser;
+
+
+
+
+
 

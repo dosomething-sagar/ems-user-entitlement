@@ -19,19 +19,19 @@ const Sidebar = (props) => {
     if (props?.user?.userAuth) {
       return props?.user?.userAuth.map((item, index) => (
         <>
-        {item?.link==="/create-user"&item?.auth?.create?
-            <li key={index}>
+        {item?.link!=="/create-user"&&item?.auth?.read&&item?.link!=="/update-user"?
+          <>
+            <li key={item.id}>
               <Link to={item.link} onClick={ toggleSidebar }>{item.label}</Link>
             </li>
-            :
-            <></>
-        }
-        {item?.link!=="/create-user"&&item?.auth?.read?
-            <li key={index}>
-              <Link to={item.link} onClick={ toggleSidebar }>{item.label}</Link>
-            </li>
-            :
-            <></>
+            {item.link==='/manage-user' && item?.auth?.create ?
+              <li key={1}>
+                <Link to='/create-user' onClick={ toggleSidebar }>Create User</Link>
+              </li>:<></>
+            }
+          </>
+          :
+          <></>
         }
         </>
       ));

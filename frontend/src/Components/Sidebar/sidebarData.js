@@ -2,7 +2,7 @@
 import CreateUser from "../../Pages/CreateUser/CreateAdmin";
 import UpdateUser from "../../Pages/CreateUser/UpdateUser";
 import Home from "../../Pages/Home/Home";
-import UserManage from "../../Pages/Home/ManageUser";
+import UserManage from "../../Pages/MasterTable/ManageUser/ManageUser";
 import AssemblyManagement from "../../Pages/MasterTable/ManageAssembly/AssemblyMange";
 import ManageCity from "../../Pages/MasterTable/ManageCity/ManageCity";
 import ParliamentManagement from "../../Pages/MasterTable/ManageParliament/ParliamentManagement";
@@ -22,22 +22,21 @@ import StateManagement from "../../Pages/MasterTable/ManageState/StateManagement
           { label: "Manage User", link: "/manage-user" ,component:UserManage, auth:{create:true,read:true,update:true,delete:true}},
           { label: "Update User", link: "/update-user" ,component:UpdateUser, auth:{create:true,read:true,update:true,delete:true}},
 
-          // Add more navigation links specific to Super Admin
         ],
         "Parliament": [
           { label: "Dashboard", link: "/" ,component:Home, auth:{create:true,read:true,update:true,delete:true}},
           { label: "Create User", link: "/create-user" , component:CreateUser, auth:{create:true,read:true,update:true,delete:true}},
-          // Add more navigation links specific to Parliament
+
         ],
         "Assembly": [
           { label: "Dashboard", link: "/", component:Home,auth:{create:true,read:true,update:true,delete:true}},
           { label: "Create User", link: "/create-user" ,component:CreateUser,auth:{create:true,read:true,update:true,delete:true}},
-          // Add more navigation links specific to Assembly
+
         ],
         "Subadmin": [
           { label: "Dashboard", link: "/" , component:Home,auth:{create:true,read:true,update:true,delete:true}},
           { label: "Create User", link: "/create-user" , component:CreateUser,auth:{create:true,read:true,update:true,delete:true}},
-          // Add more navigation links specific to Subadmin
+
         ],
         "Mandal Officer": [
           { label: "Dashboard", link: "/", component:Home,auth:{create:true,read:true,update:true,delete:true}},

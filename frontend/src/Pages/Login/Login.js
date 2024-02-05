@@ -60,7 +60,7 @@ function Login(props) {
                           return response.data.roleName;
                         });
                         const roleNames = await Promise.all(roleNamesPromises);
-                        props.showMessage(`${roleNames[0]} Login Successful`, '#4CAF50');
+                        props.showMessage(`${roleNames[0].role_type_name} Login Successful`, '#4CAF50');
                         appendData(roleNames);
                         navigate('/');
                       } catch (error) {

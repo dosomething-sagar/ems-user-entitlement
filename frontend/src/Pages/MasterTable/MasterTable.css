@@ -1,0 +1,139 @@
+.master-manage-container{
+    max-width: 70vw;
+    margin-left: 25vw;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .search-input {
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+  }
+  
+  .data-grid-container {
+    margin-top: 20px;
+  }
+  
+  /* Positioning for the toolbar above the table */
+  .MuiDataGrid-toolbarContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    z-index: 1;
+  }
+  
+  .modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Styling for input fields */
+  .input-field {
+    margin-bottom: 15px;
+  }
+  
+  .input-field label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .input-field input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Styling for buttons */
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .button-container button {
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .button-container button.add-button {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .button-container button.cancel-button {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .button-container button.save-button {
+    background-color: #2196f3;
+    color: #fff;
+  }
+  
+  .button-container button.edit-button {
+    background-color: #ffc107;
+    color: #333;
+  }
+  
+  .button-container button.delete-button {
+    background-color: #f44336;
+    color: #fff;
+  }
+  
+  @media screen and (max-width: 768px){
+    .search-input {
+        width: 100%;
+    }
+  
+    .master-manage-container{
+      max-width: 80vw;
+      margin-left: 10vw;
+    }
+  
+    .button-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+  
+    .button-container button {
+        width: 48%;
+    }
+  
+    .modal-container {
+        width: 100%;
+        max-width: 90%;
+    }
+  }
+  
